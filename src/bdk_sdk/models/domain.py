@@ -106,24 +106,10 @@ class DomainSpec(BaseModel):
 
     model_config = {"populate_by_name": True}
 
-    def model_dump(
-        self,
-        *,
-        mode: str = "python",
-        include=None,
-        exclude=None,
-        by_alias: bool = True,
-        exclude_unset: bool = True,
-        exclude_defaults: bool = False,
-        exclude_none: bool = True,
-        round_trip: bool = False,
-        warnings: bool = True,
-    ) -> dict[str, Any]:
-        return super().model_dump(
-            by_alias=by_alias,
-            exclude_unset=False,  # always include default fields
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            exclude={"name"},
-            warnings=warnings,
-        )
+    def model_dump(self, **kwargs: Any) -> dict[str, Any]:
+        """Serialize to the API request body (excludes ``name``; keeps defaults)."""
+        kwargs.setdefault("by_alias", True)
+        kwargs.setdefault("exclude_none", True)
+        kwargs["exclude_unset"] = False  # always include default fields
+        kwargs["exclude"] = {"name"}
+        return super().model_dump(**kwargs)

@@ -38,7 +38,9 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.coverage.run]
-omit = ["src/bdk_sdk/models/_generated/*"]
+omit = [
+    "src/bdk_sdk/models/_generated/*",
+]
 
 [tool.pytest.ini_options]
 addopts = "--cov=src/bdk_sdk --cov-report term --cov-report html:tests/artifacts/htmlcov"

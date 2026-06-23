@@ -1,0 +1,25 @@
+import:
+  - ../../cspell.yaml
+words:
+  - adls
+  - gondor
+  - gosdk
+  - guids
+  - hdfs
+  - miti
+  - MLAI
+  - postgre
+  - teradata
+  - truefr
+  - xlsb
+  - cdef
+  - CLTV
+  - azpurviewunifiedcatalog
+  - byval
+  - azpurviewdataaccess
+  - policyset
+  - policysets
+  - datasubscription
+  - datasubscriptions
+  - workflowrun
+  - workflowruns

@@ -44,6 +44,23 @@ class TestBusinessDomainSpec:
         with pytest.raises(Exception):
             BusinessDomainSpec.model_validate({"parentId": "00000000-0000-0000-0000-000000000001"})
 
+    def test_id_optional_defaults_none(self):
+        spec = BusinessDomainSpec.model_validate(
+            {"name": "Sales", "parentId": "00000000-0000-0000-0000-000000000001"}
+        )
+        assert spec.id is None
+
+    def test_id_excluded_from_api_body(self):
+        spec = BusinessDomainSpec.model_validate(
+            {
+                "id": "aaaa-aaaa-aaaa-aaaa",
+                "name": "Sales",
+                "parentId": "00000000-0000-0000-0000-000000000001",
+            }
+        )
+        body = spec.model_dump(by_alias=True, exclude_none=True, exclude_unset=True)
+        assert "id" not in body
+
     def test_model_dump_for_api_body(self):
         spec = BusinessDomainSpec.model_validate(
             {

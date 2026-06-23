@@ -43,59 +43,95 @@ _VALID_SPEC = {
 }
 
 
-class TestCreate:
-    def test_posts_with_correct_path_and_body(self, client, session):
+# ---------------------------------------------------------------------------
+# Class attributes
+# ---------------------------------------------------------------------------
+class TestBusinessDomainClientAttrs:
+    def test_base_path(self):
+        assert BusinessDomainClient.base_path == "/datagovernance/catalog"
+
+    def test_api_version(self):
+        assert BusinessDomainClient.api_version == "2026-03-20-preview"
+
+    def test_resource_path(self):
+        assert BusinessDomainClient.resource_path == "/businessdomains/{name}"
+
+    def test_spec_model(self):
+        assert BusinessDomainClient.spec_model is BusinessDomainSpec
+
+
+# ---------------------------------------------------------------------------
+# apply (create)
+# ---------------------------------------------------------------------------
+class TestApplyCreate:
+    def test_posts_when_no_id(self, client, session):
         spec = BusinessDomainSpec.model_validate(_VALID_SPEC)
-        result = client.create(spec)
+        assert spec.id is None
+
+        result = client.apply(spec)
         assert result == {"ok": True}
 
         call = session.calls[-1]
         assert call["method"] == "POST"
-        assert call["base_path"] == "/datagovernance/catalog"
         assert call["path"] == "/businessdomains"
         assert call["api_version"] == "2026-03-20-preview"
         assert call["json"]["name"] == "Sales"
         assert call["json"]["parentId"] == "00000000-0000-0000-0000-000000000001"
 
 
-class TestUpdate:
-    def test_puts_with_domain_id_in_path(self, client, session):
-        spec = BusinessDomainSpec.model_validate(_VALID_SPEC)
-        result = client.update("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", spec)
+# ---------------------------------------------------------------------------
+# apply (update)
+# ---------------------------------------------------------------------------
+class TestApplyUpdate:
+    def test_puts_when_id_set(self, client, session):
+        spec = BusinessDomainSpec.model_validate({"id": "aaaa-aaaa-aaaa-aaaa", **_VALID_SPEC})
+        result = client.apply(spec)
         assert result == {"ok": True}
 
         call = session.calls[-1]
         assert call["method"] == "PUT"
-        assert call["path"] == "/businessdomains/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        assert call["path"] == "/businessdomains/aaaa-aaaa-aaaa-aaaa"
         assert call["json"]["name"] == "Sales"
 
 
-class TestGet:
-    def test_gets_with_domain_id(self, client, session):
-        result = client.get("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-        assert result == {"ok": True}
+# ---------------------------------------------------------------------------
+# add / update (aliases)
+# ---------------------------------------------------------------------------
+class TestAddUpdate:
+    def test_add_is_alias_for_apply(self, client, session):
+        spec = BusinessDomainSpec.model_validate(_VALID_SPEC)
+        client.add(spec)
+        call = session.calls[-1]
+        assert call["method"] == "POST"
 
+    def test_update_is_alias_for_apply(self, client, session):
+        spec = BusinessDomainSpec.model_validate({"id": "bbbb-bbbb-bbbb-bbbb", **_VALID_SPEC})
+        client.update(spec)
+        call = session.calls[-1]
+        assert call["method"] == "PUT"
+
+
+# ---------------------------------------------------------------------------
+# get / delete / list (inherited from PurviewResourceClient)
+# ---------------------------------------------------------------------------
+class TestInherited:
+    def test_get(self, client, session):
+        result = client.get("aaaa-aaaa-aaaa-aaaa")
+        assert result == {"ok": True}
         call = session.calls[-1]
         assert call["method"] == "GET"
-        assert call["path"] == "/businessdomains/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-        assert call["json"] is None
+        assert call["path"] == "/businessdomains/aaaa-aaaa-aaaa-aaaa"
 
-
-class TestDelete:
-    def test_deletes_with_domain_id(self, client, session):
-        result = client.delete("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+    def test_delete(self, client, session):
+        result = client.delete("aaaa-aaaa-aaaa-aaaa")
         assert result == {"ok": True}
-
         call = session.calls[-1]
         assert call["method"] == "DELETE"
-        assert call["path"] == "/businessdomains/bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+        assert call["path"] == "/businessdomains/aaaa-aaaa-aaaa-aaaa"
 
-
-class TestList:
-    def test_lists_businessdomains(self, client, session):
+    def test_list(self, client, session):
         result = client.list()
         assert result == {"ok": True}
-
         call = session.calls[-1]
         assert call["method"] == "GET"
         assert call["path"] == "/businessdomains"
